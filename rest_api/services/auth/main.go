@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/spf13/viper"
 	"log"
-	"rest_api/auth_libs/server"
 	"rest_api/pkg/handler"
+	"rest_api/pkg/server"
 )
 
 func main() {
