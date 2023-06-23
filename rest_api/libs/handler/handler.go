@@ -2,7 +2,6 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	_ "net/http"
 )
 
 type Handler struct {

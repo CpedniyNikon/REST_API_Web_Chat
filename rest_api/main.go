@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/spf13/viper"
 	"log"
-	"rest_api/pkg/handler"
-	"rest_api/pkg/server"
+	"rest_api/libs/handler"
+	"rest_api/libs/server"
 )
 
 func main() {
@@ -25,6 +25,5 @@ func InitConfig() error {
 	viper.SetConfigType("yaml")
 	viper.SetConfigName("config")
 	viper.AddConfigPath("configs")
-	viper.AddConfigPath("../../configs")
 	return viper.ReadInConfig()
 }
