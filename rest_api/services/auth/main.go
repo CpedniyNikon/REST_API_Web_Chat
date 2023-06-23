@@ -3,14 +3,9 @@ package main
 import (
 	"github.com/spf13/viper"
 	"log"
-	"rest_api"
+	"rest_api/auth_libs/server"
 	"rest_api/pkg/handler"
-	"rest_api/pkg/repository"
-	"rest_api/pkg/service"
 )
-
-
-
 
 func main() {
 
@@ -18,19 +13,18 @@ func main() {
 		log.Fatalf("error initializing configs: %s", err.Error())
 	}
 
-	repos := repository.NewRepository()
-	services := service.NewService(repos)
-	handlers := handler.NewHandler(services)
+	handlers := handler.NewHandler()
 
-
-	srv := new(rest_api.Server)
+	srv := new(server.Server)
 	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
 		log.Fatal("error occurred while running server")
 	}
 }
 
 func InitConfig() error {
-	viper.AddConfigPath("configs")
+	viper.SetConfigType("yaml")
 	viper.SetConfigName("config")
+	viper.AddConfigPath("configs")
+	viper.AddConfigPath("../../configs")
 	return viper.ReadInConfig()
 }
