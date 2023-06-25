@@ -9,7 +9,7 @@ RUN go mod download
 
 
 RUN go env -w GO111MODULE=on
-RUN go build -o auth rest_api/services/auth
+RUN go build -o auth ./cmd/auth
 
 EXPOSE 8080
 
