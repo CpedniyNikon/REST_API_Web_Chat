@@ -1,10 +1,9 @@
-
 import 'package:flutter_chat/AppPages.dart';
+import 'package:flutter_chat/RouterDelegate.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'package:flutter/material.dart';
-import 'RouterDelegate.dart';
 
 void main() {
   setPathUrlStrategy();

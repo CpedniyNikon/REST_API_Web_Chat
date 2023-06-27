@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_chat/Routes.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 class Authorization extends StatelessWidget {
@@ -32,7 +34,7 @@ class Authorization extends StatelessWidget {
                 height: 120,
               ),
               Container(
-                padding: const EdgeInsets.only(left: 20, right: 20),
+                padding: const EdgeInsets.only(left: 100, right: 100),
                 child: Container(
                   decoration: const BoxDecoration(
                       color: Colors.white,
@@ -65,12 +67,9 @@ class Authorization extends StatelessWidget {
                         ),
                       ),
                       IconButton(
-                        onPressed: () => login(
-                            loginController.text, passwordController.text),
-                        icon: const Icon(
-                          Icons.ice_skating,
-                        ),
-                      ),
+                          onPressed: () => login(
+                              loginController.text, passwordController.text),
+                          icon: Image.asset('images/image.png')),
                       const SizedBox(
                         height: 20,
                       ),
@@ -86,8 +85,8 @@ class Authorization extends StatelessWidget {
   }
 }
 
-
 Future<void> login(String login, String password) async {
+
   var url = 'http://localhost:8080/auth/sign-up';
   await http
       .post(Uri.parse(url),
@@ -101,4 +100,5 @@ Future<void> login(String login, String password) async {
     debugPrint("Response body: ${response.contentLength}");
     debugPrint(response.body);
   });
+  // Get.rootDelegate.toNamed(Routes.chat);
 }
