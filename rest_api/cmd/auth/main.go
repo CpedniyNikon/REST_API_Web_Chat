@@ -17,6 +17,7 @@ func main() {
 
 	srv := new(server.Server)
 	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
+		panic(err)
 		log.Fatal("error occurred while running server")
 	}
 }

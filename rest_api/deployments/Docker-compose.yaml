@@ -3,24 +3,26 @@ version: '3.8'
 services:
   auth:
     build:
-      context: ..
+      context: ../
       dockerfile: build/auth/Dockerfile
     ports:
       - "8080:8080"
     networks:
-      - web
+      - network
 
-  db:
+  postgres:
     image: postgres:15.3
     restart: on-failure
     ports:
-      - 5433:5432
+      - "5433:5432"
     volumes:
       - ../db/data:/var/lib/postgresql/data
       - ../db/init.sql:/docker-entrypoint-initdb.d/10-init.sql
     env_file:
       - ../configs/.env
+    networks:
+      - network
 
 networks:
-  web:
+  network:
     driver: bridge

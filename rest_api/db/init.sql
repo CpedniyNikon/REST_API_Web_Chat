@@ -1,8 +1,10 @@
-create table post(
+create table userdata(
     id serial unique not null,
-    title varchar(128),
-    content text,
-    primary key (id)
-);
+    login text not null,
+    password text not null);
 
-insert into post(title, content) values('hello', 'world');
+create table message(
+    id serial unique not null,
+    text_message text not null,
+    user_id int references userdata (id));
+
