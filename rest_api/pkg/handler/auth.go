@@ -6,26 +6,25 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"net/http"
+	"rest_api/pkg/handler/utils"
+	"rest_api/pkg/handler/utils/errors"
 )
 
-type UserData struct {
-	Login    string
-	Password string
+var connection = utils.DBConnection{
+	Host:     "postgres",
+	Port:     "5432",
+	User:     "postgres",
+	Password: "qwerty",
+	DBName:   "postgres",
 }
+var connectionInfo = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+	connection.Host,
+	connection.Port,
+	connection.User,
+	connection.Password,
+	connection.DBName)
 
-type LogInResponse struct {
-	Text string
-}
-
-type UserAlreadyExistsError struct {
-	message string
-}
-
-func (err UserAlreadyExistsError) Error() string {
-	return err.message
-}
-
-func InsertUser(user UserData, db *sql.DB) error {
+func InsertUser(user utils.UserData, db *sql.DB) error {
 	fmt.Println(user.Login)
 	fmt.Println(user.Password)
 
@@ -37,7 +36,7 @@ func InsertUser(user UserData, db *sql.DB) error {
 	}
 
 	if exist {
-		return UserAlreadyExistsError{"Пользователь уже существует в базе данных."}
+		return errors.UserAlreadyExistsError{Message: "Пользователь уже существует в базе данных."}
 	}
 
 	fmt.Println("inserting")
@@ -46,90 +45,52 @@ func InsertUser(user UserData, db *sql.DB) error {
 	return nil
 }
 
-type connection struct {
-	Host     string
-	Port     string
-	User     string
-	Password string
-	DBName   string
-}
-
 func (h *Handler) signUp(c *gin.Context) {
-	fmt.Println("sing-up")
-
-	var user UserData
-
+	var user utils.UserData
 	if err := c.ShouldBindJSON(&user); err != nil {
 		//Ошибка привязки JSON
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	conn := connection{
-		Host:     "postgres",
-		Port:     "5432",
-		User:     "postgres",
-		Password: "qwerty",
-		DBName:   "postgres",
-	}
-
-	connInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		conn.Host,
-		conn.Port,
-		conn.User,
-		conn.Password,
-		conn.DBName,
-	)
-	fmt.Println(connInfo)
-
-	db, err := sql.Open("postgres", connInfo)
+	db, err := sql.Open("postgres", connectionInfo)
 	if err != nil {
 		panic(err)
-		return
 	}
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(db)
 	err = InsertUser(user, db)
 	if err != nil {
-		response := LogInResponse{"user already exists"}
+		response := utils.RequestResponse{Text: "user already exists"}
 		c.JSON(http.StatusOK, response)
 	} else {
-		response := LogInResponse{"new user added to db"}
+		response := utils.RequestResponse{Text: "new user added to db"}
 		c.JSON(http.StatusOK, response)
 	}
 }
 
 func (h *Handler) signIn(c *gin.Context) {
-	var user UserData
-
+	var user utils.UserData
 	if err := c.ShouldBindJSON(&user); err != nil {
 		//Ошибка привязки JSON
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	conn := connection{
-		Host:     "postgres",
-		Port:     "5432",
-		User:     "postgres",
-		Password: "qwerty",
-		DBName:   "postgres",
-	}
-
-	connInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		conn.Host,
-		conn.Port,
-		conn.User,
-		conn.Password,
-		conn.DBName,
-	)
-	fmt.Println(connInfo)
-
-	db, err := sql.Open("postgres", connInfo)
+	db, err := sql.Open("postgres", connectionInfo)
 	if err != nil {
 		panic(err)
-		return
 	}
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(db)
 
 	var exist bool
 	query := "SELECT EXISTS(SELECT login, password FROM userdata WHERE login=$1 AND password=$2)"
@@ -139,10 +100,10 @@ func (h *Handler) signIn(c *gin.Context) {
 	}
 
 	if exist {
-		response := LogInResponse{"user already exists"}
+		response := utils.RequestResponse{Text: "u just logged in"}
 		c.JSON(http.StatusOK, response)
 	} else {
-		response := LogInResponse{"no such user id db"}
+		response := utils.RequestResponse{Text: "no such user id db"}
 		c.JSON(http.StatusOK, response)
 	}
 }
