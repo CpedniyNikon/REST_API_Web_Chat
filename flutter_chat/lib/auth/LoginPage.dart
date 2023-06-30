@@ -105,9 +105,9 @@ class _LoginPageState extends State<LoginPage> {
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
                       gradient: const LinearGradient(colors: [
-                      Color.fromRGBO(187, 63, 221, 1),
-                      Color.fromRGBO(251, 109, 169, 1),
-                      Color.fromRGBO(255, 159, 124, 1),
+                        Color.fromRGBO(187, 63, 221, 1),
+                        Color.fromRGBO(251, 109, 169, 1),
+                        Color.fromRGBO(255, 159, 124, 1),
                       ], begin: Alignment.topLeft, end: Alignment.bottomRight)),
                   child: ElevatedButton(
                     onPressed: () =>
@@ -156,7 +156,8 @@ class _LoginPageState extends State<LoginPage> {
 }
 
 Future<void> login(String login, String password) async {
-  var url = 'http://localhost:8080/auth/sign-up';
+  debugPrint("login");
+  var url = 'http://localhost:8080/auth/sign-in';
   await http
       .post(Uri.parse(url),
           headers: {},
@@ -168,6 +169,9 @@ Future<void> login(String login, String password) async {
     debugPrint("Response status: ${response.statusCode}");
     debugPrint("Response body: ${response.contentLength}");
     debugPrint(response.body);
+    var output = json.decode(response.body);
+    var text = output["text"];
+    debugPrint(text);
+    if (text == "u just logged in") { Get.rootDelegate.toNamed(Routes.chat);}
   });
-  // Get.rootDelegate.toNamed(Routes.chat);
 }
