@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,6 +15,7 @@ func NewHandler() (h *Handler) {
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	h.routes = gin.New()
+	h.routes.Use(cors.Default())
 
 	auth := h.routes.Group("/auth")
 	{
