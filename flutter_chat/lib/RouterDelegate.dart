@@ -10,7 +10,7 @@ class AppRouterDelegate extends GetDelegate {
       onPopPage: (route, result) => route.didPop(result),
       pages: currentConfiguration != null
           ? [currentConfiguration!.currentPage!]
-          : [GetNavConfig.fromRoute(Routes.authentication)!.currentPage!],
+          : [GetNavConfig.fromRoute(Routes.login)!.currentPage!],
     );
   }
 }
