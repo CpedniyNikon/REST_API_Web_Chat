@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"rest_api/pkg/handler/utils"
 	"rest_api/pkg/handler/utils/errors"
+	"time"
 )
 
 var connection = utils.DBConnection{
@@ -100,10 +101,58 @@ func (h *Handler) signIn(c *gin.Context) {
 	}
 
 	if exist {
+
+		query =
+			`UPDATE postgres.public.userdata
+		SET time_logged = $1, is_logged = $2
+		WHERE login = $3 and password = $4
+		`
+
+		login, password, logged, loginTime := user.Login, user.Password, 1, time.Now()
+
+		_, err = db.Exec(query, loginTime, logged, login, password)
+		if err != nil {
+			panic(err)
+		}
 		response := utils.RequestResponse{Text: "u just logged in"}
 		c.JSON(http.StatusOK, response)
 	} else {
 		response := utils.RequestResponse{Text: "no such user id db"}
 		c.JSON(http.StatusOK, response)
+	}
+}
+
+func (h *Handler) signOut(c *gin.Context) {
+	var user utils.UserData
+	if err := c.ShouldBindJSON(&user); err != nil {
+		//Ошибка привязки JSON
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	db, err := sql.Open("postgres", connectionInfo)
+	if err != nil {
+		panic(err)
+	}
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(db)
+
+	query :=
+		`UPDATE postgres.public.userdata
+		SET time_logged = $1, is_logged = $2
+		WHERE login = $3 and password = $4
+		`
+
+	login, password, logged := user.Login, user.Password, 0
+
+	var loginTime *time.Time = nil
+
+	_, err = db.Exec(query, loginTime, logged, login, password)
+	if err != nil {
+		panic(err)
 	}
 }
