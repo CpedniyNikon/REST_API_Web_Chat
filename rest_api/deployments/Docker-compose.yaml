@@ -10,6 +10,15 @@ services:
     networks:
       - network
 
+  mainchat:
+    build:
+      context: ../
+      dockerfile: build/mainchat/Dockerfile
+    ports:
+      - "8081:8080"
+    networks:
+      - network
+
   postgres:
     image: postgres:15.3
     restart: on-failure

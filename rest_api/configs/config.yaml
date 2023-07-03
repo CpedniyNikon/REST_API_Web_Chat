@@ -1,1 +1,2 @@
-port: "8080"
+auth_port: "8080"
+main_chat_port: "8081"
