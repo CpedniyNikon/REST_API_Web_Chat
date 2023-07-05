@@ -6,12 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"net/http"
-	utils2 "rest_api/internal/handler/utils"
+	utils "rest_api/internal/handler/utils"
 	"rest_api/internal/handler/utils/errors"
 	"time"
 )
 
-var connection = utils2.DBConnection{
+var connection = utils.DBConnection{
 	Host:     "postgres",
 	Port:     "5432",
 	User:     "postgres",
@@ -25,7 +25,7 @@ var connectionInfo = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s 
 	connection.Password,
 	connection.DBName)
 
-func InsertUser(user utils2.UserData, db *sql.DB) error {
+func AddUser(user utils.UserData, db *sql.DB) error {
 	fmt.Println(user.Login)
 	fmt.Println(user.Password)
 
@@ -40,14 +40,14 @@ func InsertUser(user utils2.UserData, db *sql.DB) error {
 		return errors.UserAlreadyExistsError{Message: "Пользователь уже существует в базе данных."}
 	}
 
-	fmt.Println("inserting")
+	fmt.Println("adding user")
 	_, _ = db.Exec("insert into \"userdata\" (login, password) values ($1, $2)",
 		user.Login, user.Password)
 	return nil
 }
 
 func (h *Handler) signUp(c *gin.Context) {
-	var user utils2.UserData
+	var user utils.UserData
 	if err := c.ShouldBindJSON(&user); err != nil {
 		//Ошибка привязки JSON
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -64,18 +64,18 @@ func (h *Handler) signUp(c *gin.Context) {
 			panic(err)
 		}
 	}(db)
-	err = InsertUser(user, db)
+	err = AddUser(user, db)
 	if err != nil {
-		response := utils2.RequestResponse{Text: "user already exists"}
+		response := utils.RequestResponse{Text: "user already exists"}
 		c.JSON(http.StatusOK, response)
 	} else {
-		response := utils2.RequestResponse{Text: "new user added to db"}
+		response := utils.RequestResponse{Text: "new user added to db"}
 		c.JSON(http.StatusOK, response)
 	}
 }
 
 func (h *Handler) signIn(c *gin.Context) {
-	var user utils2.UserData
+	var user utils.UserData
 	if err := c.ShouldBindJSON(&user); err != nil {
 		//Ошибка привязки JSON
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -114,16 +114,16 @@ func (h *Handler) signIn(c *gin.Context) {
 		if err != nil {
 			panic(err)
 		}
-		response := utils2.RequestResponse{Text: "u just logged in"}
+		response := utils.RequestResponse{Text: "u just logged in"}
 		c.JSON(http.StatusOK, response)
 	} else {
-		response := utils2.RequestResponse{Text: "no such user id db"}
+		response := utils.RequestResponse{Text: "no such user id db"}
 		c.JSON(http.StatusOK, response)
 	}
 }
 
 func (h *Handler) signOut(c *gin.Context) {
-	var user utils2.UserData
+	var user utils.UserData
 	if err := c.ShouldBindJSON(&user); err != nil {
 		//Ошибка привязки JSON
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

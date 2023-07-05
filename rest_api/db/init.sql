@@ -9,5 +9,6 @@ create table userdata(
 create table message(
     id serial unique not null,
     text_message text not null,
-    user_id int references userdata (id)
+    time_sended timestamp without time zone,
+    user_id int references userdata (id) not null
 );

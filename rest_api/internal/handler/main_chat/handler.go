@@ -16,9 +16,9 @@ func NewHandler() (h *Handler) {
 func (h *Handler) InitMainChatRoutes() *gin.Engine {
 	h.routes = gin.New()
 	h.routes.Use(cors.Default())
-	auth := h.routes.Group("/chat")
+	chat := h.routes.Group("/chat")
 	{
-		auth.POST("/sign-out", h.write)
+		chat.POST("/write", h.write)
 	}
 	return h.routes
 }

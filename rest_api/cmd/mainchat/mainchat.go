@@ -13,7 +13,6 @@ func main() {
 	}
 
 	handlers := main_chat.NewHandler()
-
 	srv := new(server.Server)
 	if err := srv.Run(viper.GetString("main_chat_port"), handlers.InitMainChatRoutes()); err != nil {
 		log.Fatal("error occurred while running main chat service " + err.Error())

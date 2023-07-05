@@ -11,6 +11,6 @@ RUN go mod download
 RUN go env -w GO111MODULE=on
 RUN go build -o mainchat ./cmd/mainchat
 
-EXPOSE 8080
+EXPOSE 8081
 
 CMD [ "./mainchat" ]
