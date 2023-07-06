@@ -105,7 +105,7 @@ func (h *Handler) signIn(c *gin.Context) {
 		query =
 			`update postgres.public.userdata
 		set time_logged = $1, is_logged = $2
-		where login = $3 and password = $4 returning login
+		where login = $3 and password = $4 returning id
 		`
 
 		login, password, logged, loginTime := user.Login, user.Password, 1, time.Now()
