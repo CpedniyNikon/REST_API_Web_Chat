@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"net/http"
-	utils "rest_api/internal/handler/utils"
+	"rest_api/internal/handler/utils"
 	"rest_api/internal/handler/utils/errors"
 	"time"
 )
@@ -37,7 +37,7 @@ func AddUser(user utils.UserData, db *sql.DB) error {
 	}
 
 	if exist {
-		return errors.UserAlreadyExistsError{Message: "Пользователь уже существует в базе данных."}
+		return errors.UserAlreadyExistsError{Message: "user already exists in db"}
 	}
 
 	fmt.Println("adding user")
@@ -49,7 +49,6 @@ func AddUser(user utils.UserData, db *sql.DB) error {
 func (h *Handler) signUp(c *gin.Context) {
 	var user utils.UserData
 	if err := c.ShouldBindJSON(&user); err != nil {
-		//Ошибка привязки JSON
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -66,18 +65,15 @@ func (h *Handler) signUp(c *gin.Context) {
 	}(db)
 	err = AddUser(user, db)
 	if err != nil {
-		response := utils.RequestResponse{Text: "user already exists"}
-		c.JSON(http.StatusOK, response)
+		c.JSON(http.StatusBadRequest, gin.H{"response": "user already exists"})
 	} else {
-		response := utils.RequestResponse{Text: "new user added to db"}
-		c.JSON(http.StatusOK, response)
+		c.JSON(http.StatusOK, gin.H{"response": "user added to db"})
 	}
 }
 
 func (h *Handler) signIn(c *gin.Context) {
 	var user utils.UserData
 	if err := c.ShouldBindJSON(&user); err != nil {
-		//Ошибка привязки JSON
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -115,22 +111,18 @@ func (h *Handler) signIn(c *gin.Context) {
 		if err != nil {
 			panic(err)
 		}
-		response := utils.RequestResponse{Text: "u just logged in", Id: id}
-		c.JSON(http.StatusOK, response)
+		c.JSON(http.StatusOK, gin.H{"id": id})
 	} else {
-		response := utils.RequestResponse{Text: "no such user id db"}
-		c.JSON(http.StatusOK, response)
+		c.JSON(http.StatusBadRequest, gin.H{"response": "there is no user with such parameters"})
 	}
 }
 
 func (h *Handler) signOut(c *gin.Context) {
 	var user utils.UserData
 	if err := c.ShouldBindJSON(&user); err != nil {
-		//Ошибка привязки JSON
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
 	db, err := sql.Open("postgres", connectionInfo)
 	if err != nil {
 		panic(err)
