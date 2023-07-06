@@ -30,7 +30,7 @@ func AddUser(user utils.UserData, db *sql.DB) error {
 	fmt.Println(user.Password)
 
 	var exist bool
-	query := "SELECT EXISTS(SELECT login, password FROM userdata WHERE login=$1 AND password=$2)"
+	query := "select exists(select login, password from userdata where login=$1 and password=$2)"
 	err := db.QueryRow(query, user.Login, user.Password).Scan(&exist)
 	if err != nil {
 		panic(err)
@@ -94,7 +94,7 @@ func (h *Handler) signIn(c *gin.Context) {
 	}(db)
 
 	var exist bool
-	query := "SELECT EXISTS(SELECT login, password FROM userdata WHERE login=$1 AND password=$2)"
+	query := "select exists(select login, password from userdata where login=$1 and password=$2)"
 	err = db.QueryRow(query, user.Login, user.Password).Scan(&exist)
 	if err != nil {
 		panic(err)
@@ -103,18 +103,19 @@ func (h *Handler) signIn(c *gin.Context) {
 	if exist {
 
 		query =
-			`UPDATE postgres.public.userdata
-		SET time_logged = $1, is_logged = $2
-		WHERE login = $3 and password = $4
+			`update postgres.public.userdata
+		set time_logged = $1, is_logged = $2
+		where login = $3 and password = $4 returning login
 		`
 
 		login, password, logged, loginTime := user.Login, user.Password, 1, time.Now()
 
-		_, err = db.Exec(query, loginTime, logged, login, password)
+		var id int64
+		_ = db.QueryRow(query, loginTime, logged, login, password).Scan(&id)
 		if err != nil {
 			panic(err)
 		}
-		response := utils.RequestResponse{Text: "u just logged in"}
+		response := utils.RequestResponse{Text: "u just logged in", Id: id}
 		c.JSON(http.StatusOK, response)
 	} else {
 		response := utils.RequestResponse{Text: "no such user id db"}
@@ -142,9 +143,9 @@ func (h *Handler) signOut(c *gin.Context) {
 	}(db)
 
 	query :=
-		`UPDATE postgres.public.userdata
-		SET time_logged = $1, is_logged = $2
-		WHERE login = $3 and password = $4
+		`update postgres.public.userdata
+		set time_logged = $1, is_logged = $2
+		where login = $3 and password = $4
 		`
 
 	login, password, logged := user.Login, user.Password, 0
