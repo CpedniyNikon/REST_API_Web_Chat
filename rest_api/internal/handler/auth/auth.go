@@ -67,7 +67,7 @@ func (h *Handler) signUp(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"response": "user already exists"})
 	} else {
-		c.JSON(http.StatusOK, gin.H{"response": "user added to db"})
+		c.JSON(http.StatusOK, gin.H{})
 	}
 }
 
