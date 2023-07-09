@@ -1,7 +1,7 @@
 import 'package:flutter_chat/MainChat/MainChat.dart';
-import 'package:flutter_chat/Routes.dart';
 import 'package:flutter_chat/auth/LoginPage.dart';
 import 'package:flutter_chat/auth/RegisterPage.dart';
+import 'package:flutter_chat/routes/Routes.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 
 abstract class AppPages {

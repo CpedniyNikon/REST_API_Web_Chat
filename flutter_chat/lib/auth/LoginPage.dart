@@ -1,8 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat/Routes.dart';
+import 'package:flutter_chat/routes/Routes.dart';
 import 'package:flutter_chat/utils/UserData.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -171,9 +172,7 @@ Future<void> login(String login, String password) async {
     debugPrint("Response body: ${response.contentLength}");
     debugPrint(response.body);
     var output = json.decode(response.body);
-    var text = output["text"];
-    debugPrint(text);
-    if (text == "u just logged in") {
+    if (response.statusCode == HttpStatus.ok) {
       Get.rootDelegate.toNamed(Routes.chat);
       UserData.id = output["id"];
       debugPrint("id := ${UserData.id}");

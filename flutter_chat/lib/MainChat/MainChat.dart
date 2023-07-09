@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_chat/MainChat/requests/get_messages.dart';
+import 'package:flutter_chat/MainChat/requests/write.dart';
 
 class MainChat extends StatefulWidget {
   MainChat({Key? key}) : super(key: key);
@@ -8,15 +12,35 @@ class MainChat extends StatefulWidget {
 }
 
 class _MainChatState extends State<MainChat> {
-  List<String> _notificationEmails = [
-    "fdf","fdf"
-  ];
+  final List<String> _notificationEmails = [];
+  late Timer timer;
+
+  void update() {
+    //this is a new Function
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    timer = Timer.periodic(
+        const Duration(
+          seconds: 1,
+        ),
+        (Timer t) => getMessages(_notificationEmails, update));
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
 
   final TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
       body: Center(
         child: Column(
           children: [
@@ -45,19 +69,7 @@ class _MainChatState extends State<MainChat> {
         }
         return null;
       },
-      onChanged: (String value) {
-        if (value.substring(value.length - 1) == ',') {
-          print('>>>>>> value = $value : controller = ${_controller.hashCode}');
-          setState(() {
-            _notificationEmails.add(value.substring(0, value.length - 1));
-          });
-          Future<void>.delayed(
-            const Duration(milliseconds: 10),
-            _controller.clear,
-          );
-          print(_notificationEmails);
-        }
-      },
+      onFieldSubmitted: write,
     );
   }
 }

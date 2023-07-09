@@ -2,8 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat/Routes.dart';
+import 'package:flutter_chat/routes/Routes.dart';
 import 'package:get/get.dart';
+import 'package:get/get_connect/http/src/status/http_status.dart';
 import 'package:http/http.dart' as http;
 
 class RegistrationPage extends StatefulWidget {
@@ -169,8 +170,8 @@ Future<void> login(String login, String password) async {
     debugPrint("Response body: ${response.contentLength}");
     debugPrint(response.body);
     var output = json.decode(response.body);
-    var text = output["text"];
-    debugPrint(text);
-    if (text == "new user added to db") { Get.rootDelegate.toNamed(Routes.login);}
+    if (response.statusCode == HttpStatus.ok) {
+      Get.rootDelegate.toNamed(Routes.login);
+    }
   });
 }
