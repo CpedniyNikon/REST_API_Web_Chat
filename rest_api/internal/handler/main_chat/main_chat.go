@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"rest_api/internal/handler/utils"
 	"strconv"
-	"time"
+	time "time"
 )
 
 var connection = utils.DBConnection{
@@ -60,6 +60,10 @@ func (h *Handler) write(c *gin.Context) {
 	AddMessage(user, db)
 }
 
+type UserInfo struct {
+	UserID int `json:"userID"`
+}
+
 func (h *Handler) getMessages(c *gin.Context) {
 
 	db, err := sql.Open("postgres", connectionInfo)
@@ -73,7 +77,27 @@ func (h *Handler) getMessages(c *gin.Context) {
 		}
 	}(db)
 
+	var UserInfo UserInfo
+	if err := c.ShouldBindJSON(&UserInfo); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	var UserID = UserInfo.UserID
+
+	var Login string
+	var Password string
+	var IsLogged bool
+	var YourTimeLogged time.Time
+	var TimeLogged time.Time
+
 	query :=
+		"select * from userdata where id=$1"
+	err = db.QueryRow(query, UserID).Scan(&UserID, &Login, &Password, &IsLogged, &YourTimeLogged)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	query =
 		"select * from message"
 	rows, _ := db.Query(query)
 
@@ -84,21 +108,26 @@ func (h *Handler) getMessages(c *gin.Context) {
 		}
 	}(rows)
 
+	CurrentTime := time.Now()
+	fmt.Println(CurrentTime)
+
 	var messages []utils.MessageResponse
 	for rows.Next() {
 		var Id int
 		var Message string
-		var Time time.Time
+		var TimeSended time.Time
 		var UserId int
-		err := rows.Scan(&Id, &Message, &Time, &UserId)
+		err := rows.Scan(&Id, &Message, &TimeSended, &UserId)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		var Login string
-		var Password string
-		var IsLogged bool
-		var TimeLogged time.Time
+		fmt.Print("current time:= ")
+		fmt.Println(CurrentTime)
+
+		fmt.Print("time sended:= ")
+		fmt.Println(TimeSended)
+
 		query =
 			"select * from userdata where id=$1"
 		err = db.QueryRow(query, UserId).Scan(&Id, &Login, &Password, &IsLogged, &TimeLogged)
@@ -108,7 +137,12 @@ func (h *Handler) getMessages(c *gin.Context) {
 		fmt.Println("Id := " + strconv.Itoa(UserId))
 		fmt.Println("login := " + Login)
 
+		if YourTimeLogged.After(TimeSended) {
+			continue
+		}
+
 		messages = append(messages, utils.MessageResponse{User: Login, Message: Message})
 	}
+
 	c.JSON(http.StatusOK, messages)
 }

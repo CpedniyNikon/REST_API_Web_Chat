@@ -19,7 +19,7 @@ func (h *Handler) InitMainChatRoutes() *gin.Engine {
 	chat := h.routes.Group("/chat")
 	{
 		chat.POST("/write", h.write)
-		chat.GET("/get_messages", h.getMessages)
+		chat.POST("/get_messages", h.getMessages)
 	}
 	return h.routes
 }
