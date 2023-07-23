@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_chat/utils/UserData.dart';
 import 'package:http/http.dart' as http;
 
 class Message {
@@ -18,7 +19,10 @@ getMessages(List<String> messages, void Function() update) async {
   debugPrint("get_message");
   var url = 'http://localhost:8081/chat/get_messages';
   await http
-      .get(Uri.parse(url), headers: {})
+      .post(Uri.parse(url), headers: {},
+      body: json.encode({
+        "userID": UserData.id
+      }) )
       .then((http.Response response) {
     debugPrint("Response status: ${response.statusCode}");
     debugPrint("Response body: ${response.contentLength}");
